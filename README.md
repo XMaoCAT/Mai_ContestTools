@@ -40,7 +40,7 @@
    - 启动服务
    - 打开浏览器
 
-## `XMaoCAT` 启动开关
+## 设置启动时直接使用系统Python环境，而不询问是否创建虚拟环境
 
 在 `start_server.bat` 第一行：
 
@@ -48,7 +48,7 @@
 @set "XMaoCAT=0"
 ```
 
-1. `XMaoCAT=0`：正常询问启动模式（默认）
+1. `XMaoCAT=0`：正常询问启动
 2. `XMaoCAT=1`：跳过询问，直接走系统 Python 模式
 
 ## 手动运行（开发/调试）
@@ -85,15 +85,11 @@ start_server.bat --check
 
 ## 常见问题
 
-1. `is not recognized as an internal or external command`
-   - 说明在 `.bat` 里写了“裸文本”备注。
-   - 备注请使用 `REM` 或 `::` 开头。
-
-2. `Can't find a usable init.tcl`
+1. `Can't find a usable init.tcl`
    - 当前 Python 缺少/损坏 Tcl/Tk 运行时。
    - 请修复系统 Python，或使用 `N` 模式让项目创建独立环境。
 
-3. 下载失败
+2. 下载失败
    - 检查网络、代理、目标站点可访问性。
    - GUI 日志会打印失败原因和脚本返回码。
 
