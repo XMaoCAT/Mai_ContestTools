@@ -103,7 +103,7 @@ start_server.bat --check
 
 ## 贴别鸣谢
 
-感谢 Kosame [ 喵喵 / 小雨 ] 提供的情绪价值
-感谢 https://github.com/Diving-Fish/maimaidx-prober #提供国服版本的歌曲信息
-感谢 https://github.com/PaperPig/MaimaiData #本软件开发初期的制作灵感
-感谢 https://github.com/Yuri-YuzuChaN/maimaiDX #提供的歌曲别名
+   - 感谢 Kosame [ 喵喵 / 小雨 ] 提供的情绪价值
+   - 感谢 [maimaidx-prober](https://github.com/Diving-Fish/maimaidx-prober) 提供国服版本的歌曲信息
+   - 感谢 [MaimaiData](https://github.com/PaperPig/MaimaiData) #本软件开发初期的制作灵感
+   - 感谢 [maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX) #提供的歌曲别名
