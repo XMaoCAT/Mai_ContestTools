@@ -1,4 +1,4 @@
-# XMaoMaiContestTools
+7# XMaoMaiContestTools
 
 一个本地化的 maimai 比赛辅助工具 功能如下：
 1. Web 前端（抽歌、比赛、结果展示）
@@ -103,7 +103,7 @@ start_server.bat --check
 
 ## 特别鸣谢
 
-   - 感谢 [maimaidx-prober](https://github.com/Diving-Fish/maimaidx-prober) 提供的情绪价值喵 ❤️ฅ^•ﻌ•^ฅ
+   - 感谢 [maimaidx-prober](https://b23.tv/MeqEwXB#杂鱼~才不给你联系方式OvO) 提供的情绪价值喵 ❤️ฅ^•ﻌ•^ฅ
    - 感谢 [maimaidx-prober](https://github.com/Diving-Fish/maimaidx-prober) 提供国服版本的歌曲信息
    - 感谢 [MaimaiData](https://github.com/PaperPig/MaimaiData) #本软件开发初期的制作灵感
    - 感谢 [maimaiDX](https://github.com/Yuri-YuzuChaN/maimaiDX) #提供的歌曲别名
