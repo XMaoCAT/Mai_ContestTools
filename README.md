@@ -23,8 +23,7 @@
 ## 运行环境
 
 1. Windows 8.1/10/11 
-（Windows7可尝试PythonWin7等项目启动）
-2. Python 3（需支持 `tkinter`）
+2. 推荐使用Python 3.13（需支持 `tkinter`）
 3. 下载曲库/曲绘时需要 下载后可完全离线
 
 ## 快速开始
