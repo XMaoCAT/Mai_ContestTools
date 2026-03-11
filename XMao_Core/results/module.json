@@ -1,0 +1,9 @@
+{
+  "id": "results",
+  "name": "比赛结果",
+  "icon": "📊",
+  "order": 20,
+  "page": "page.html",
+  "script": "page.js",
+  "style": "page.css"
+}

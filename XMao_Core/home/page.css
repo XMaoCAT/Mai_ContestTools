@@ -1,0 +1,111 @@
+/* 主页面模块样式 */
+
+#homePage #peopleList.is-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#homePage #peopleList .empty-message {
+    width: 100%;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.match-vs-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-width: 52px;
+}
+
+.match-vs-label {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent-color);
+    line-height: 1;
+    transform: translateY(0);
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.match-vs-arrow {
+    min-height: 22px;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--accent-color);
+    transform: translateY(-2px);
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.match-vs-status:not(.is-progress):not(.is-tie) .match-vs-arrow {
+    visibility: hidden;
+}
+
+.match-vs-status.is-progress .match-vs-label,
+.match-vs-status.is-tie .match-vs-label {
+    transform: translateY(-4px);
+}
+
+.match-vs-status.is-progress .match-vs-arrow,
+.match-vs-status.is-tie .match-vs-arrow {
+    visibility: visible;
+    transform: translateY(-2px);
+}
+
+.dark-theme .match-vs-status.is-progress .match-vs-label,
+.dark-theme .match-vs-status.is-progress .match-vs-arrow,
+.dark-theme .match-vs-status.is-tie .match-vs-label,
+.dark-theme .match-vs-status.is-tie .match-vs-arrow {
+    color: #ffffff;
+}
+
+.match-avatar-container .match-avatar-image {
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.match-avatar-container.avatar-winner .match-avatar-image {
+    border-color: #4caf50 !important;
+    box-shadow:
+        0 0 0 3px rgba(76, 175, 80, 0.28),
+        0 0 16px rgba(76, 175, 80, 0.78),
+        0 2px 8px var(--shadow-color) !important;
+    transform: translateY(-1px);
+}
+
+.match-avatar-container.avatar-winner .match-avatar-name {
+    color: #4caf50 !important;
+}
+
+.match-avatar-container.avatar-loser .match-avatar-image {
+    border-color: #ff5252 !important;
+    box-shadow:
+        0 0 0 3px rgba(255, 82, 82, 0.24),
+        0 0 16px rgba(255, 82, 82, 0.72),
+        0 2px 8px var(--shadow-color) !important;
+}
+
+.match-avatar-container.avatar-loser .match-avatar-name {
+    color: #ff6b6b !important;
+}
+
+.match-avatar-container.avatar-tie .match-avatar-image {
+    border-color: #4ecdc4 !important;
+    box-shadow:
+        0 0 0 3px rgba(78, 205, 196, 0.24),
+        0 0 14px rgba(78, 205, 196, 0.62),
+        0 2px 8px var(--shadow-color) !important;
+}
+
+.match-avatar-container.avatar-tie .match-avatar-name {
+    color: #4ecdc4 !important;
+}

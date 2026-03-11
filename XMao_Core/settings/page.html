@@ -1,0 +1,231 @@
+<section class="page" id="settingsPage" style="display: none;">
+            <div class="page-content settings-page-shell">
+                <div class="settings-hero">
+                    <h2 data-i18n="settings.hero.title">设置中心</h2>
+                    <p data-i18n="settings.hero.subtitle">统一管理主题、曲库数据与实验性功能。</p>
+                </div>
+
+                <div class="settings-grid">
+                    <section class="settings-card settings-card-theme">
+                        <div class="settings-card-head">
+                            <h3 data-i18n="settings.theme.title">主题设置</h3>
+                            <span class="settings-card-tag" data-i18n="settings.card_tag.theme">Theme</span>
+                        </div>
+                        <div class="theme-options">
+                            <label class="theme-option">
+                                <input type="radio" name="theme" value="light" checked>
+                                <span data-i18n="settings.theme.light">浅色主题</span>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="theme" value="dark">
+                                <span data-i18n="settings.theme.dark">深色主题</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="settings-card settings-card-language">
+                        <div class="settings-card-head">
+                            <h3 data-i18n="settings.language.title">语言设置</h3>
+                            <span class="settings-card-tag" data-i18n="settings.card_tag.language">Lang</span>
+                        </div>
+                        <div class="database-options">
+                            <label class="settings-inline-label" for="languageSelect" data-i18n="settings.language.label">界面语言</label>
+                            <select id="languageSelect" class="database-select"></select>
+                            <div class="database-info" id="languageInfo">语言包加载中...</div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card settings-card-appearance settings-card-wide">
+                        <div class="settings-card-head">
+                            <h3 data-i18n="settings.appearance.title">界面外观</h3>
+                            <span class="settings-card-tag" data-i18n="settings.card_tag.appearance">Look</span>
+                        </div>
+                        <div class="settings-appearance-grid">
+                            <div class="database-options">
+                                <label class="settings-inline-label" for="backgroundSelect" data-i18n="settings.background.label">背景壁纸</label>
+                                <select id="backgroundSelect" class="database-select"></select>
+                                <div class="settings-inline-actions">
+                                    <button class="action-btn clear small-btn" id="refreshBackgroundBtn" data-i18n="settings.background.refresh">刷新背景列表</button>
+                                </div>
+                                <div class="database-info" id="backgroundInfo" data-i18n="settings.background.loading">背景资源加载中...</div>
+                            </div>
+                            <div class="database-options">
+                                <label class="settings-inline-label" for="backgroundVideoModeToggle" data-i18n="settings.background.mode.label">壁纸播放模式</label>
+                                <label class="settings-toggle-row">
+                                    <input type="checkbox" id="backgroundVideoModeToggle">
+                                    <span data-i18n="settings.background.mode.video_toggle">启用视频模式（顺序循环）</span>
+                                </label>
+                                <label class="settings-toggle-row">
+                                    <input type="checkbox" id="backgroundVideoLoopToggle" checked>
+                                    <span data-i18n="settings.background.video.loop_toggle">启用视频循环播放</span>
+                                </label>
+                                <div class="database-info" id="backgroundModeInfo"></div>
+                                <div class="database-info" id="backgroundVideoLoopInfo"></div>
+                            </div>
+                            <div class="database-options">
+                                <label class="settings-inline-label" data-i18n="settings.layout.label">布局模式</label>
+                                <div class="theme-options layout-options">
+                                    <label class="theme-option">
+                                        <input type="radio" name="layoutMode" value="classic" checked>
+                                        <span data-i18n="settings.layout.classic">经典布局</span>
+                                    </label>
+                                    <label class="theme-option">
+                                        <input type="radio" name="layoutMode" value="glass">
+                                        <span data-i18n="settings.layout.glass">玻璃卡片布局</span>
+                                    </label>
+                                </div>
+                                <div class="database-info" id="layoutInfo"></div>
+                            </div>
+                            <div class="database-options settings-font-color-card">
+                                <label class="settings-inline-label" for="fontColorPicker" data-i18n="settings.font_color.label">全局字体颜色</label>
+                                <div class="settings-font-color-row">
+                                    <input type="color" id="fontColorPicker" value="#2c3e50" aria-label="Global font color">
+                                    <span class="settings-font-color-value" id="fontColorValue">#2C3E50</span>
+                                </div>
+                                <div class="database-info" id="fontColorInfo">当前字体颜色：主题默认（#2C3E50）</div>
+                                <label class="settings-toggle-row" for="fontOutlineToggle">
+                                    <input type="checkbox" id="fontOutlineToggle">
+                                    <span data-i18n="settings.font_outline.enable">启用全局字体描边</span>
+                                </label>
+                                <label class="settings-inline-label" for="fontOutlineWidthRange" data-i18n="settings.font_outline.width">描边厚度</label>
+                                <div class="settings-range-row">
+                                    <input type="range" id="fontOutlineWidthRange" min="0.2" max="4" step="0.1" value="0.8">
+                                    <span class="settings-font-color-value" id="fontOutlineWidthValue">0.8px</span>
+                                </div>
+                                <label class="settings-inline-label" for="fontOutlineColorPicker" data-i18n="settings.font_outline.color">描边颜色</label>
+                                <div class="settings-font-color-row">
+                                    <input type="color" id="fontOutlineColorPicker" value="#ffffff" aria-label="Global font outline color">
+                                    <span class="settings-font-color-value" id="fontOutlineColorValue">#FFFFFF</span>
+                                </div>
+                                <div class="database-info" id="fontOutlineInfo">当前描边：关闭</div>
+                            </div>
+                        </div>
+                        <div class="database-info settings-background-tip" data-i18n="settings.background.tip">
+                            图片模式：将 png/jpg/jpeg 放入 XMao_Core/Background，每次切换都会先裁剪。视频模式：将 mp4 放入 XMao_Core/Background/Video，可指定单个视频播放，也可循环播放。
+                        </div>
+                        <div class="glass-control-panel" id="glassControlPanel">
+                            <div class="database-info glass-control-hint" id="glassControlHint" data-i18n="settings.glass.hint">
+                                以下滑条用于微调玻璃卡片样式参数，切换后立即生效。
+                            </div>
+                            <div class="glass-slider-grid">
+                                <label class="glass-slider-item" for="glassOpacityRange">
+                                    <span class="glass-slider-label" data-i18n="settings.glass.opacity">卡片透明度</span>
+                                    <span class="glass-slider-value" id="glassOpacityValue">42%</span>
+                                    <input id="glassOpacityRange" class="glass-slider-input" type="range" min="18" max="95" step="1" value="42" data-glass-key="opacity">
+                                </label>
+                                <label class="glass-slider-item" for="glassBlurRange">
+                                    <span class="glass-slider-label" data-i18n="settings.glass.blur">模糊强度</span>
+                                    <span class="glass-slider-value" id="glassBlurValue">14px</span>
+                                    <input id="glassBlurRange" class="glass-slider-input" type="range" min="0" max="28" step="1" value="14" data-glass-key="blur">
+                                </label>
+                                <label class="glass-slider-item" for="glassRadiusRange">
+                                    <span class="glass-slider-label" data-i18n="settings.glass.radius">圆角半径</span>
+                                    <span class="glass-slider-value" id="glassRadiusValue">4px</span>
+                                    <input id="glassRadiusRange" class="glass-slider-input" type="range" min="0" max="16" step="1" value="4" data-glass-key="radius">
+                                </label>
+                                <label class="glass-slider-item" for="glassBorderRange">
+                                    <span class="glass-slider-label" data-i18n="settings.glass.border">边框强度</span>
+                                    <span class="glass-slider-value" id="glassBorderValue">18%</span>
+                                    <input id="glassBorderRange" class="glass-slider-input" type="range" min="0" max="60" step="1" value="18" data-glass-key="border">
+                                </label>
+                                <label class="glass-slider-item" for="glassShadowRange">
+                                    <span class="glass-slider-label" data-i18n="settings.glass.shadow">阴影强度</span>
+                                    <span class="glass-slider-value" id="glassShadowValue">8%</span>
+                                    <input id="glassShadowRange" class="glass-slider-input" type="range" min="0" max="40" step="1" value="8" data-glass-key="shadow">
+                                </label>
+                                <label class="glass-slider-item" for="glassGradientRange">
+                                    <span class="glass-slider-label" data-i18n="settings.glass.gradient">渐变强度</span>
+                                    <span class="glass-slider-value" id="glassGradientValue">18%</span>
+                                    <input id="glassGradientRange" class="glass-slider-input" type="range" min="0" max="50" step="1" value="18" data-glass-key="gradient">
+                                </label>
+                                <label class="glass-slider-item" for="glassButtonRange">
+                                    <span class="glass-slider-label" data-i18n="settings.glass.button">按钮透明度</span>
+                                    <span class="glass-slider-value" id="glassButtonValue">88%</span>
+                                    <input id="glassButtonRange" class="glass-slider-input" type="range" min="35" max="100" step="1" value="88" data-glass-key="button">
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card settings-card-database">
+                        <div class="settings-card-head">
+                            <h3 data-i18n="settings.database.title">选择数据库</h3>
+                            <span class="settings-card-tag" data-i18n="settings.card_tag.data">Data</span>
+                        </div>
+                        <div class="database-options">
+                            <select id="databaseSelect" class="database-select"></select>
+                            <div class="database-info" id="databaseInfo"></div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card settings-card-mailist settings-card-wide">
+                        <div class="settings-card-head">
+                            <h3 data-i18n="settings.mailist.title">MaiList 文件夹管理</h3>
+                            <span class="settings-card-tag" data-i18n="settings.card_tag.files">Files</span>
+                        </div>
+                        <div class="mailist-management">
+                            <div class="mailist-actions">
+                                <button class="action-btn clear" id="refreshMaiList" data-i18n="settings.mailist.refresh">刷新列表</button>
+                                <button class="action-btn export" id="batchDeleteFiles" disabled data-i18n="settings.mailist.batch_delete">批量删除</button>
+                            </div>
+                            <div class="mailist-files-list" id="mailistFilesList">
+                                <div class="settings-empty-hint" data-i18n="settings.mailist.empty">
+                                    暂无文件列表数据
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card settings-card-experimental settings-card-wide">
+                        <div class="settings-card-head">
+                            <h3 data-i18n="settings.experimental.title">实验性功能</h3>
+                            <span class="settings-card-tag" data-i18n="settings.card_tag.labs">Labs</span>
+                        </div>
+                        <div class="mailist-management">
+                            <div class="mailist-actions mailist-actions-experimental">
+                                <button class="action-btn export" id="memoryTestToggleBtn" data-i18n="settings.experimental.test">使用内存加载器</button>
+                                <button class="action-btn clear" id="memoryTestStartupToggleBtn" data-i18n="settings.experimental.autoload_off">启动自动加载：已关闭</button>
+                                <div class="database-info" id="memoryTestStatus" data-i18n="settings.experimental.status_off">已关闭</div>
+                            </div>
+                            <div class="database-info settings-experimental-desc" data-i18n-html="settings.experimental.description_html">
+                                点击 <strong>使用内存加载器</strong> 后会先构建缓存包，再将图片资源解压到内存中并从内存读取曲绘，可有效解决因硬盘读写速度慢导致的图片加载缓慢。<br>
+                                <strong>启动自动加载</strong> 控制是否在应用启动时自动开启内存加载器。
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <div class="background-crop-modal" id="backgroundCropModal" aria-hidden="true">
+                <div class="background-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="backgroundCropTitle">
+                    <div class="background-crop-header">
+                        <h4 id="backgroundCropTitle" data-i18n="settings.background.crop.title">裁剪背景图</h4>
+                        <button type="button" class="background-crop-close" id="backgroundCropClose" aria-label="Close">×</button>
+                    </div>
+                    <div class="background-crop-source" id="backgroundCropSource"></div>
+                    <div class="background-crop-workspace" id="backgroundCropWorkspace">
+                        <img id="backgroundCropImage" alt="Crop source">
+                        <div class="background-crop-stage" id="backgroundCropStage">
+                            <div class="background-crop-rect" id="backgroundCropRect">
+                                <span class="crop-handle crop-handle-nw" data-handle="nw"></span>
+                                <span class="crop-handle crop-handle-n" data-handle="n"></span>
+                                <span class="crop-handle crop-handle-ne" data-handle="ne"></span>
+                                <span class="crop-handle crop-handle-e" data-handle="e"></span>
+                                <span class="crop-handle crop-handle-se" data-handle="se"></span>
+                                <span class="crop-handle crop-handle-s" data-handle="s"></span>
+                                <span class="crop-handle crop-handle-sw" data-handle="sw"></span>
+                                <span class="crop-handle crop-handle-w" data-handle="w"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="background-crop-info" id="backgroundCropInfo" data-i18n="settings.background.crop.tip">
+                        拖拽或拉伸裁剪框，确认后会保存为新的壁纸文件，不修改原图。
+                    </div>
+                    <div class="background-crop-actions">
+                        <button class="action-btn clear" id="backgroundCropCancel" data-i18n="settings.background.crop.cancel">取消</button>
+                        <button class="action-btn export" id="backgroundCropConfirm" data-i18n="settings.background.crop.confirm">确认并应用</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+

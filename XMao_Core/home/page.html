@@ -1,0 +1,193 @@
+<section class="page" id="homePage" style="display: flex;">
+            <div class="page-content">
+                
+                <!-- 人员检录工具容器 - 用于隐藏/显示 -->
+                <div id="peopleToolContainer" style="
+                    display: block;
+                    width: 100%;
+                    z-index: 100;
+                    position: relative;
+                    margin-bottom: 30px;
+                ">
+                    <!-- 顶部长条 -->
+                    <div class="top-bar" style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 30px;
+                        padding: 20px;
+                        background: var(--bg-primary);
+                        backdrop-filter: blur(20px);
+                        border-radius: 16px;
+                        border: 1px solid var(--border-color);
+                        box-shadow: 0 4px 15px var(--shadow-color);
+                    ">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <h2 style="margin: 0;font-size: 28px;" data-i18n="home.people.title">人员检录工具</h2>
+                            <button id="hidePeopleBtn" class="action-btn hide-btn" style="
+                                padding: 8px 16px;
+                                background: var(--bg-primary);
+                                color: var(--text-primary);
+                                border: 1px solid var(--border-color);
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                backdrop-filter: blur(10px);
+                            " data-i18n="home.people.hide">
+                                隐藏
+                            </button>
+                        </div>
+                        <div class="top-bar-actions" style="display: flex; gap: 12px;">
+                            <button id="importPeopleBtn" class="action-btn export" style="
+                                padding: 8px 16px;
+                                background: var(--bg-primary);
+                                color: var(--text-primary);
+                                border: 1px solid var(--border-color);
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                backdrop-filter: blur(10px);
+                            " data-i18n="home.people.import">
+                                导入
+                            </button>
+                            <button id="exportPeopleBtn" class="action-btn export" style="
+                                padding: 8px 16px;
+                                background: var(--bg-primary);
+                                color: var(--text-primary);
+                                border: 1px solid var(--border-color);
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                backdrop-filter: blur(10px);
+                            " data-i18n="home.people.export">
+                                导出
+                            </button>
+                            <button id="addPersonBtn" class="action-btn export" style="
+                                padding: 8px 16px;
+                                background: var(--accent-color);
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                backdrop-filter: blur(10px);
+                            " data-i18n="home.people.add">
+                                添加人员
+                            </button>
+                            <button id="startMatchBtn" class="action-btn start-btn" style="
+                                padding: 8px 16px;
+                                background: #ff6b6b;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                backdrop-filter: blur(10px);
+                            " data-i18n="home.people.start">
+                                开始比赛
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 人员列表 -->
+                    <div class="people-list" id="peopleList" style="
+                        background: var(--bg-primary);
+                        backdrop-filter: blur(20px);
+                        border-radius: 16px;
+                        border: 1px solid var(--border-color);
+                        box-shadow: 0 4px 15px var(--shadow-color);
+                        padding: 20px;
+                        min-height: 200px;
+                        margin-bottom: 30px;
+                    ">
+                        <!-- 初始空状态 -->
+                        <div class="empty-state" style="
+                            text-align: center;
+                            color: var(--text-secondary);
+                            padding: 40px;
+                            font-size: 16px;
+                        " data-i18n="home.people.empty">
+                            暂无人员数据，请点击"添加人员"按钮添加
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 比赛分组显示区域 - 新框，位于人员列表下方 -->
+                <div id="matchContainer" style="
+                    background: var(--bg-primary);
+                    backdrop-filter: blur(20px);
+                    border-radius: 16px;
+                    border: 1px solid var(--border-color);
+                    box-shadow: 0 4px 15px var(--shadow-color);
+                    padding: 20px;
+                    margin: 20px 0 30px 0;
+                    display: none;
+                    flex-direction: column;
+                    gap: 20px;
+                    position: relative;
+                    z-index: 1;
+                ">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: var(--text-primary);" data-i18n="home.match.title">比赛分组</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="toggleGlobalSyncBtn" style="
+                                padding: 8px 16px;
+                                background: #9e9e9e;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            " data-i18n="home.match.global_sync_off">全局同步已关闭</button>
+                            <button id="backToPeopleBtn" style="
+                                padding: 8px 16px;
+                                background: var(--accent-color);
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            " data-i18n="home.match.back">返回人员列表</button>
+                        </div>
+                    </div>
+                    <div id="matchGroups" style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 20px;
+                    ">
+                        <!-- 动态生成比赛分组 -->
+                    </div>
+                    
+                    <!-- 结束比赛按钮 -->
+                    <div style="display: flex; justify-content: center; margin-top: 20px;">
+                        <button id="endMatchBtn" style="
+                            padding: 12px 32px;
+                            background: #ff6b6b;
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px var(--shadow-color);
+                        " data-i18n="home.match.end">结束比赛</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+

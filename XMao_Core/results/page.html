@@ -1,0 +1,76 @@
+<section class="page" id="resultsPage" style="display: none;">
+            <div class="page-content" style="width: 80%; max-width: 1200px;">
+                <!-- 比赛结果版块 -->
+                <div id="matchResultsContainer" style="
+                    background: var(--bg-primary);
+                    backdrop-filter: blur(20px);
+                    border-radius: 16px;
+                    border: 1px solid var(--border-color);
+                    box-shadow: 0 4px 15px var(--shadow-color);
+                    padding: 20px;
+                    margin-bottom: 30px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                ">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: var(--text-primary);" data-i18n="results.title">比赛结果</h3>
+                    </div>
+                    <div class="results-history-toolbar">
+                        <button class="action-btn clear" id="refreshResultFilesBtn" data-i18n="results.history.refresh">刷新历史文件</button>
+                        <select id="resultFileSelect" class="results-file-select">
+                            <option value="" data-i18n="results.history.no_files">暂无历史文件</option>
+                        </select>
+                        <button class="action-btn export" id="loadResultFileBtn" disabled data-i18n="results.history.load">加载选中文件</button>
+                        <button class="action-btn export" id="exportWinnersBtn">导出胜利者JSON</button>
+                        <button class="action-btn clear" id="mergeResultsBtn">JSON合并</button>
+                    </div>
+                    <div class="results-history-info" id="resultFileInfo" data-i18n="results.history.current_session">当前显示本次会话结果</div>
+                    <div id="matchResultsList" style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 15px;
+                    ">
+                        <!-- 动态生成比赛结果列表 -->
+                    </div>
+
+                    <div id="mergedBracketSection" class="merged-bracket-section" style="display: none;">
+                        <div class="merged-bracket-head">
+                            <h4>合并晋级图</h4>
+                            <div class="merged-bracket-subtitle" id="mergedBracketSubtitle">等待选择要合并的结果文件</div>
+                        </div>
+                        <div class="merged-bracket-viewport" id="mergedBracketViewport"></div>
+                        <div class="merged-bracket-actions">
+                            <button class="action-btn export" id="exportMergedBracketPngBtn" disabled>导出PNG</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="export-dialog" id="exportWinnersDialog">
+                <div class="export-dialog-content">
+                    <h3>导出胜利者 JSON</h3>
+                    <div class="form-group">
+                        <label for="exportWinnersFileName">文件名</label>
+                        <input type="text" id="exportWinnersFileName" placeholder="请输入文件名">
+                    </div>
+                    <div class="export-dialog-buttons">
+                        <button class="export-dialog-btn cancel" id="exportWinnersCancel">取消</button>
+                        <button class="export-dialog-btn confirm" id="exportWinnersConfirm">确定</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="export-dialog" id="mergeResultsDialog">
+                <div class="export-dialog-content merge-results-dialog-content">
+                    <h3>合并比赛结果 JSON</h3>
+                    <div class="merge-results-file-list" id="mergeResultsFileList">
+                        <div class="merge-results-empty">读取文件列表中...</div>
+                    </div>
+                    <div class="export-dialog-buttons">
+                        <button class="export-dialog-btn cancel" id="mergeResultsCancel">取消</button>
+                        <button class="export-dialog-btn confirm" id="mergeResultsConfirm" disabled>生成晋级图</button>
+                    </div>
+                </div>
+            </div>
+        </section>

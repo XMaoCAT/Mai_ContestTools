@@ -1,0 +1,9 @@
+{
+  "id": "settings",
+  "name": "设置",
+  "icon": "⚙️",
+  "order": 30,
+  "page": "page.html",
+  "script": "page.js",
+  "style": "page.css"
+}

@@ -1,0 +1,117 @@
+/* 曲库模块最终样式覆盖（优先级高于全局 styles.css） */
+#libraryPage {
+    height: 100vh;
+    overflow: hidden;
+}
+
+#libraryPage .library-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    margin-left: 70px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#libraryPage .library-sidebar {
+    width: 300px;
+    min-width: 280px;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    overscroll-behavior: contain;
+    border-radius: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+#libraryPage .library-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+#libraryPage .library-header {
+    flex-shrink: 0;
+}
+
+#libraryPage .songs-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    contain: layout paint;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) transparent;
+}
+
+#libraryPage .song-card {
+    contain: layout paint style;
+    content-visibility: auto;
+    contain-intrinsic-size: 280px 220px;
+}
+
+#libraryPage .virtual-spacer {
+    grid-column: 1 / -1;
+    width: 100%;
+    pointer-events: none;
+}
+
+#libraryPage .library-sidebar::-webkit-scrollbar,
+#libraryPage .songs-grid::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+#libraryPage .library-sidebar::-webkit-scrollbar-thumb,
+#libraryPage .songs-grid::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 999px;
+}
+
+#libraryPage .library-sidebar::-webkit-scrollbar-track,
+#libraryPage .songs-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+@media (max-width: 1200px) {
+    #libraryPage {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+    }
+
+    #libraryPage .library-container {
+        margin-left: 0;
+        height: auto;
+        overflow: visible;
+        flex-direction: column;
+    }
+
+    #libraryPage .library-sidebar {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        max-height: 42vh;
+    }
+
+    #libraryPage .library-main {
+        min-height: 58vh;
+    }
+}
