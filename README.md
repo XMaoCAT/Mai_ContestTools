@@ -16,7 +16,7 @@
 5. 导出胜利者名单 JSON 到 `MaiList/Character`
 6. GUI 一键下载曲库（`DownloadCore/Download-MaiJson.py`）
 7. GUI 一键下载曲绘（`DownloadCore/Download_Mai_Illustration.py`，最多 32 线程）
-8. 可选内存加载器缓存包编译（提升曲绘读取速度）
+8. 可选内存加载器缓存包编译（提升曲绘读取速度 ←这个特别好用😋）
 
 添加曲库可进行别名，曲名，ID搜索 可以一键生成比赛用的名单 同时 也支持宴会场的添加
 
