@@ -1,5 +1,5 @@
 ![image](https://github.com/XMaoCAT/Mai_ContestTools/blob/main/XMao_Core%2Flogo.png)
-# MaiContestTools
+# 
 
 一个本地化的 maimai 比赛辅助工具 功能如下：
 1. Web 前端（抽歌、比赛、结果展示）
