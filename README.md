@@ -7,7 +7,7 @@
 
 可直接一站式完成所有比赛的等级和赛后成绩的发布。
 
-本项目为[Mai-Competition-Tools](https://github.com/XMaoCAT/Mai-Competition-Tools)和
+本项目为[Mai-Competition-Tools](https://github.com/XMaoCAT/Mai-Competition-Tools)和[XMaiRandomMusic](https://github.com/XMaoCAT/XMaiRandomMusic)的结合&重构版
 
 ## 主要功能
 
