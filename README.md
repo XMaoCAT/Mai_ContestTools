@@ -1,4 +1,4 @@
-7# XMaoMaiContestTools
+# XMaoMaiContestTools
 
 一个本地化的 maimai 比赛辅助工具 功能如下：
 1. Web 前端（抽歌、比赛、结果展示）
@@ -6,6 +6,8 @@
 3. 下载脚本（曲库 JSON 与曲绘资源）
 
 可直接一站式完成所有比赛的等级和赛后成绩的发布。
+
+本项目为[Mai-Competition-Tools](https://github.com/XMaoCAT/Mai-Competition-Tools)和
 
 ## 主要功能
 
