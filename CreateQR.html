@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XMao 扫码检录二维码</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-page: linear-gradient(135deg, #eef6ff 0%, #e6f0ff 48%, #dcecff 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(79, 172, 254, 0.25);
+            --card-shadow: rgba(79, 172, 254, 0.18);
+            --text-primary: #1f3554;
+            --text-secondary: #61738a;
+            --accent: #4facfe;
+            --ok: #2fbf71;
+            --danger: #ea5455;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .qr-page {
+            width: min(960px, 100%);
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 12px 30px var(--card-shadow);
+            border-radius: 18px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 22px;
+        }
+
+        .form-title {
+            font-size: 26px;
+            margin-bottom: 8px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+        }
+
+        .form-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        .avatar-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 18px;
+        }
+
+        .avatar-wrap img {
+            width: 106px;
+            height: 106px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(79, 172, 254, 0.45);
+            background: #ffffff;
+            box-shadow: 0 8px 22px rgba(33, 147, 255, 0.22);
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .field input {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            padding: 0 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.94);
+            transition: all 0.2s ease;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
+        }
+
+        .mode-shell {
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+
+        .mode-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .mode-toggle {
+            display: block;
+            position: relative;
+            width: 240px;
+            height: 46px;
+            border-radius: 999px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .mode-toggle-track {
+            display: block;
+        }
+
+        .mode-toggle input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mode-toggle-track {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: linear-gradient(120deg, #20bf6b, #26d07c);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 20px rgba(32, 191, 107, 0.28);
+            transition: all 0.25s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .mode-toggle-track::before {
+            content: "";
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 8px);
+            height: calc(100% - 8px);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.25s ease;
+        }
+
+        .mode-toggle-labels {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            pointer-events: none;
+        }
+
+        .mode-toggle-labels span {
+            z-index: 2;
+            transition: color 0.2s ease;
+        }
+
+        .mode-toggle-labels .mode-login {
+            color: #126f43;
+        }
+
+        .mode-toggle-labels .mode-logout {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .mode-toggle input:checked + .mode-toggle-track {
+            background: linear-gradient(120deg, #ff6b6b, #ea5455);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 20px rgba(234, 84, 85, 0.3);
+        }
+
+        .mode-toggle input:checked + .mode-toggle-track::before {
+            transform: translateX(calc(100% + 0px));
+        }
+
+        .mode-toggle input:checked + .mode-toggle-track .mode-toggle-labels .mode-login {
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .mode-toggle input:checked + .mode-toggle-track .mode-toggle-labels .mode-logout {
+            color: #8f1d20;
+        }
+
+        .content-box {
+            width: 100%;
+            min-height: 82px;
+            resize: vertical;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.94);
+        }
+
+        .tool-row {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .tool-btn {
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            padding: 0 16px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(79, 172, 254, 0.28);
+        }
+
+        .tool-btn.download {
+            background: linear-gradient(135deg, #2fbf71, #26a862);
+        }
+
+        .tool-btn.download:hover {
+            box-shadow: 0 8px 18px rgba(38, 168, 98, 0.28);
+        }
+
+        .qr-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .qr-box {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+        }
+
+        .qr-tip {
+            margin-top: 12px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .qr-download-row {
+            margin-top: 14px;
+            justify-content: center;
+        }
+
+        @media (max-width: 920px) {
+            .qr-page {
+                grid-template-columns: 1fr;
+            }
+
+            .qr-box {
+                width: min(86vw, 280px);
+                height: min(86vw, 280px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="qr-page">
+        <section class="card">
+            <h1 class="form-title">XMao 扫码检录二维码</h1>
+            <p class="form-subtitle">填写选手信息后二维码会实时刷新。检录器识别后可自动入场/退场。</p>
+
+            <div class="avatar-wrap">
+                <img id="qqAvatarPreview" src="./Data/人类.png" alt="QQ头像预览">
+            </div>
+
+            <div class="field">
+                <label for="qrPlayerName">姓名</label>
+                <input id="qrPlayerName" type="text" placeholder="请输入姓名">
+            </div>
+
+            <div class="field">
+                <label for="qrPlayerQQ">QQ号</label>
+                <input id="qrPlayerQQ" type="text" placeholder="请输入QQ号">
+            </div>
+
+            <div class="field">
+                <label for="qrPlayerRating">Rating</label>
+                <input id="qrPlayerRating" type="text" placeholder="请输入Rating（可选）">
+            </div>
+
+            <div class="mode-shell">
+                <div class="mode-title">检录模式（左：参赛 / 右：退赛）</div>
+                <label class="mode-toggle" for="qrModeToggle">
+                    <input id="qrModeToggle" type="checkbox">
+                    <span class="mode-toggle-track">
+                        <span class="mode-toggle-labels">
+                            <span class="mode-login">参赛</span>
+                            <span class="mode-logout">退赛</span>
+                        </span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="field">
+                <label for="qrContentOutput">二维码内容</label>
+                <textarea id="qrContentOutput" class="content-box" readonly></textarea>
+            </div>
+            <div class="tool-row">
+                <button id="copyQrContentBtn" class="tool-btn" type="button">复制内容</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="qr-card-title">二维码</h2>
+            <div class="qr-box" id="qrImageBox"></div>
+            <p class="qr-tip">内容格式：<br>`XMao.SYSLogin[姓名,QQ,Rating]` 或 `XMao.SYSLogOut[姓名,QQ,Rating]`</p>
+            <div class="tool-row qr-download-row">
+                <button id="downloadQrBadgeBtn" class="tool-btn download" type="button">下载图片</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="./XMao_Core/vendor/qrcode.min.js"></script>
+    <script>
+        const nameInput = document.getElementById('qrPlayerName');
+        const qqInput = document.getElementById('qrPlayerQQ');
+        const ratingInput = document.getElementById('qrPlayerRating');
+        const modeToggle = document.getElementById('qrModeToggle');
+        const qrContentOutput = document.getElementById('qrContentOutput');
+        const qrImageBox = document.getElementById('qrImageBox');
+        const copyBtn = document.getElementById('copyQrContentBtn');
+        const downloadBtn = document.getElementById('downloadQrBadgeBtn');
+        const avatarPreview = document.getElementById('qqAvatarPreview');
+        const fallbackAvatar = './Data/人类.png';
+        const qrScriptCandidates = [
+            './XMao_Core/vendor/qrcode.min.js',
+            'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js'
+        ];
+
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const exists = document.querySelector(`script[src="${src}"]`);
+                if (exists && typeof window.qrcode === 'function') {
+                    resolve();
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = false;
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error(`脚本加载失败: ${src}`));
+                document.head.appendChild(script);
+            });
+        }
+
+        async function ensureQrLibraryReady() {
+            if (typeof window.qrcode === 'function' || typeof window.QRCode !== 'undefined') {
+                return;
+            }
+
+            for (const src of qrScriptCandidates) {
+                try {
+                    await loadScript(src);
+                    if (typeof window.qrcode === 'function' || typeof window.QRCode !== 'undefined') {
+                        return;
+                    }
+                } catch (error) {
+                    console.warn(error);
+                }
+            }
+            throw new Error('二维码库加载失败');
+        }
+
+        function sanitizePart(rawValue) {
+            return String(rawValue ?? '')
+                .replace(/\r?\n/g, ' ')
+                .replace(/[\[\],]/g, ' ')
+                .trim();
+        }
+
+        function normalizeQQ(rawValue) {
+            return String(rawValue ?? '').replace(/\D+/g, '').trim();
+        }
+
+        function buildQrContent() {
+            const name = sanitizePart(nameInput.value);
+            const qq = normalizeQQ(qqInput.value);
+            const rating = sanitizePart(ratingInput.value);
+            const action = modeToggle.checked ? 'XMao.SYSLogOut' : 'XMao.SYSLogin';
+            return `${action}[${name},${qq},${rating}]`;
+        }
+
+        function getModeLabel() {
+            return modeToggle.checked ? '退出' : '检录';
+        }
+
+        function getBadgeFileName() {
+            return `牡丹江比赛-${getModeLabel()}二维码.png`;
+        }
+
+        function getDisplayPlayerName() {
+            return sanitizePart(nameInput.value) || '未命名选手';
+        }
+
+        function updateAvatarPreview() {
+            const qq = normalizeQQ(qqInput.value);
+            if (!qq) {
+                avatarPreview.src = fallbackAvatar;
+                return;
+            }
+            avatarPreview.src = `https://q.qlogo.cn/g?b=qq&nk=${qq}&s=640`;
+        }
+
+        function renderQrByGeneratorFactory(content) {
+            const qr = window.qrcode(0, 'M');
+            qr.addData(content, 'Byte');
+            qr.make();
+            const dataUrl = qr.createDataURL(5, 2);
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.alt = '系统检录二维码';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'contain';
+            qrImageBox.appendChild(img);
+        }
+
+        function renderQrByQRCodeClass(content) {
+            new QRCode(qrImageBox, {
+                text: content,
+                width: 280,
+                height: 280,
+                colorDark: '#203047',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        async function nextAnimationFrame() {
+            return new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+
+        async function createQrDataUrl(content) {
+            await ensureQrLibraryReady();
+
+            if (typeof window.qrcode === 'function') {
+                const qr = window.qrcode(0, 'M');
+                qr.addData(content, 'Byte');
+                qr.make();
+                return qr.createDataURL(10, 2);
+            }
+
+            if (typeof window.QRCode !== 'undefined') {
+                const tempWrap = document.createElement('div');
+                tempWrap.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:360px;height:360px;';
+                document.body.appendChild(tempWrap);
+                try {
+                    new QRCode(tempWrap, {
+                        text: content,
+                        width: 360,
+                        height: 360,
+                        colorDark: '#203047',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                    await nextAnimationFrame();
+                    await nextAnimationFrame();
+
+                    const canvas = tempWrap.querySelector('canvas');
+                    if (canvas) {
+                        return canvas.toDataURL('image/png');
+                    }
+
+                    const img = tempWrap.querySelector('img');
+                    if (img && img.src) {
+                        return img.src;
+                    }
+                } finally {
+                    tempWrap.remove();
+                }
+            }
+
+            throw new Error('二维码库未就绪');
+        }
+
+        function createRoundedRectPath(ctx, x, y, width, height, radius) {
+            const r = Math.min(radius, width / 2, height / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + width, y, x + width, y + height, r);
+            ctx.arcTo(x + width, y + height, x, y + height, r);
+            ctx.arcTo(x, y + height, x, y, r);
+            ctx.arcTo(x, y, x + width, y, r);
+            ctx.closePath();
+        }
+
+        function loadImageFromUrl(url) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onload = () => resolve(image);
+                image.onerror = () => reject(new Error('二维码图像加载失败'));
+                image.src = url;
+            });
+        }
+
+        async function downloadBadgeImage() {
+            const qrContent = buildQrContent();
+            const playerName = getDisplayPlayerName();
+            const modeLabel = getModeLabel();
+            const titleText = `牡丹江比赛-${modeLabel}二维码`;
+
+            const qrDataUrl = await createQrDataUrl(qrContent);
+            const qrImage = await loadImageFromUrl(qrDataUrl);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 900;
+            canvas.height = 1320;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                throw new Error('无法创建绘图上下文');
+            }
+
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, '#f5f9ff');
+            bgGradient.addColorStop(1, '#e7f1ff');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            createRoundedRectPath(ctx, 90, 70, 720, 1180, 38);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.strokeStyle = '#b9d6ff';
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, 110, 24, 0, Math.PI * 2);
+            ctx.fillStyle = '#eef5ff';
+            ctx.fill();
+            ctx.strokeStyle = '#9bc4ff';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            ctx.fillStyle = '#2c4a77';
+            ctx.font = '700 46px "Microsoft YaHei", "PingFang SC", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(titleText, canvas.width / 2, 220);
+
+            createRoundedRectPath(ctx, 190, 290, 520, 520, 26);
+            ctx.fillStyle = '#f7fbff';
+            ctx.fill();
+            ctx.strokeStyle = '#b8d7ff';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            createRoundedRectPath(ctx, 230, 330, 440, 440, 16);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.strokeStyle = '#d5e8ff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.drawImage(qrImage, 250, 350, 400, 400);
+
+            ctx.fillStyle = '#45638c';
+            ctx.font = '600 28px "Microsoft YaHei", "PingFang SC", sans-serif';
+            ctx.fillText('扫码完成身份校验', canvas.width / 2, 870);
+
+            createRoundedRectPath(ctx, 170, 930, 560, 180, 20);
+            ctx.fillStyle = '#f3f8ff';
+            ctx.fill();
+            ctx.strokeStyle = '#bed8ff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.fillStyle = '#6b84a4';
+            ctx.font = '600 24px "Microsoft YaHei", "PingFang SC", sans-serif';
+            ctx.fillText('选手姓名', canvas.width / 2, 995);
+
+            ctx.fillStyle = '#223e68';
+            ctx.font = '700 54px "Microsoft YaHei", "PingFang SC", sans-serif';
+            ctx.fillText(playerName, canvas.width / 2, 1072);
+
+            ctx.fillStyle = '#7f94ae';
+            ctx.font = '500 20px "Microsoft YaHei", "PingFang SC", sans-serif';
+            ctx.fillText(qrContent, canvas.width / 2, 1188);
+
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = getBadgeFileName();
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        async function renderQr() {
+            const content = buildQrContent();
+            qrContentOutput.value = content;
+            qrImageBox.innerHTML = '';
+
+            try {
+                await ensureQrLibraryReady();
+
+                if (typeof window.qrcode === 'function') {
+                    renderQrByGeneratorFactory(content);
+                    return;
+                }
+
+                if (typeof window.QRCode !== 'undefined') {
+                    renderQrByQRCodeClass(content);
+                    return;
+                }
+
+                throw new Error('二维码库未就绪');
+            } catch (error) {
+                qrImageBox.textContent = `二维码未就绪：${error?.message || error}`;
+            }
+        }
+
+        function bindEvents() {
+            const updateAll = () => {
+                updateAvatarPreview();
+                renderQr().catch((error) => {
+                    qrImageBox.textContent = `二维码未就绪：${error?.message || error}`;
+                });
+            };
+
+            nameInput.addEventListener('input', updateAll);
+            qqInput.addEventListener('input', updateAll);
+            ratingInput.addEventListener('input', updateAll);
+            modeToggle.addEventListener('change', updateAll);
+
+            avatarPreview.addEventListener('error', () => {
+                avatarPreview.src = fallbackAvatar;
+            });
+
+            copyBtn.addEventListener('click', async () => {
+                const content = qrContentOutput.value || buildQrContent();
+                try {
+                    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                        await navigator.clipboard.writeText(content);
+                    } else {
+                        qrContentOutput.select();
+                        document.execCommand('copy');
+                    }
+                    copyBtn.textContent = '已复制';
+                    setTimeout(() => {
+                        copyBtn.textContent = '复制内容';
+                    }, 1200);
+                } catch (error) {
+                    window.alert(`复制失败：${error?.message || error}`);
+                }
+            });
+
+            downloadBtn.addEventListener('click', async () => {
+                try {
+                    downloadBtn.disabled = true;
+                    downloadBtn.textContent = '生成中...';
+                    await downloadBadgeImage();
+                    downloadBtn.textContent = '下载图片';
+                } catch (error) {
+                    window.alert(`下载失败：${error?.message || error}`);
+                    downloadBtn.textContent = '下载图片';
+                } finally {
+                    downloadBtn.disabled = false;
+                }
+            });
+        }
+
+        bindEvents();
+        updateAvatarPreview();
+        renderQr().catch((error) => {
+            qrImageBox.textContent = `二维码未就绪：${error?.message || error}`;
+        });
+    </script>
+</body>
+</html>

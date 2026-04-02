@@ -1,0 +1,9 @@
+{
+  "id": "library",
+  "name": "曲库",
+  "icon": "🎵",
+  "order": 40,
+  "page": "page.html",
+  "script": "page.js",
+  "style": "page.css"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "home",
+  "name": "比赛",
+  "icon": "🆚",
+  "order": 10,
+  "page": "page.html",
+  "script": "page.js",
+  "style": "page.css"
+}

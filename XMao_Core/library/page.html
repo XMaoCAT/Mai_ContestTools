@@ -1,0 +1,98 @@
+<section class="page" id="libraryPage" style="display: none;">
+            <div class="library-container">
+                <!-- 左侧筛选边栏（保留） -->
+                <div class="library-sidebar">
+                    <h2 data-i18n="library.sidebar.title">曲库筛选</h2>
+                    
+                    <!-- 选中歌曲列表 -->
+                    <div class="selected-songs-container">
+                        <div class="selected-songs-list" id="selectedSongsList">
+                            <!-- 动态生成选中歌曲 -->
+                        </div>
+                        
+                        <!-- 操作按钮 -->
+                        <div class="selected-songs-actions">
+                            <button class="action-btn clear" id="clearAllSongs" data-i18n="library.selected.clear_all">全部清除</button>
+                            <button class="action-btn export" id="exportSongs" data-i18n="library.selected.export">导出</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧主内容区域 -->
+                <div class="library-main">
+                    <div class="library-header">
+                        <h2 data-i18n="library.list.title">歌曲列表</h2>
+                        
+                        <!-- 搜索和筛选组合区域 -->
+                        <div class="search-filter-container">
+                            <!-- 左侧：筛选控件 -->
+                            <div class="filter-controls">
+                                <!-- 流派筛选 -->
+                                <div class="filter-item">
+                                    <label for="genreFilter" class="filter-label" data-i18n="library.filter.genre">流派</label>
+                                    <select id="genreFilter" class="filter-select">
+                                        <option value="" data-i18n="library.filter.all">全部</option>
+                                        <!-- 动态生成流派选项 -->
+                                    </select>
+                                </div>
+                                
+                                <!-- 版本筛选 -->
+                                <div class="filter-item">
+                                    <label for="versionFilter" class="filter-label" data-i18n="library.filter.version">版本</label>
+                                    <select id="versionFilter" class="filter-select">
+                                        <option value="" data-i18n="library.filter.all">全部</option>
+                                        <!-- 动态生成版本选项 -->
+                                    </select>
+                                </div>
+                                
+                                <!-- 等级筛选 -->
+                                <div class="filter-item">
+                                    <label for="levelFilter" class="filter-label" data-i18n="library.filter.level">等级</label>
+                                    <select id="levelFilter" class="filter-select">
+                                        <option value="" data-i18n="library.filter.all">全部</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- 重置按钮 -->
+                                <div class="filter-item">
+                                    <button id="resetFilter" class="reset-button-small" data-i18n="library.filter.reset">重置</button>
+                                </div>
+                            </div>
+                            
+                            <!-- 右侧：搜索和计数 -->
+                            <div class="search-count-container">
+                                <!-- 可展开的搜索框 -->
+                                <div class="search-container expandable">
+                                    <div class="search-input-wrapper">
+                                        <input type="text" id="searchInput" class="search-input" placeholder="输入歌名或别名搜索..." data-i18n-placeholder="library.search.placeholder">
+                                        <button class="search-toggle" id="searchToggle">🔍</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="database-count" id="databaseCount">
+                                    <span class="count-label" data-i18n="library.count.prefix">当前显示：</span>
+                                    <span class="count-value" id="countValue">0</span>
+                                    <span class="count-label" data-i18n="library.count.suffix">首歌曲</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 歌曲网格 -->
+                    <div class="songs-grid" id="songsGrid">
+                        <!-- 动态生成歌曲卡片 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
