@@ -20,6 +20,7 @@ XMaoMaiContestTools 是一个本地化的 maimai 比赛辅助工具，包含：
 7. GUI 一键下载曲绘（`DownloadCore/Download_Mai_Illustration.py`，最多 32 线程）
 8. 内存加载器缓存包编译（提升曲绘读取速度）
 9. 初始化软件（清理使用痕迹并重置状态）
+10. 随机歌曲：支持从完整曲库按流派、等级、谱面类型、定数筛选，或从自定义 TXT 曲池抽选
 
 ## 运行环境
 
@@ -59,6 +60,29 @@ pip install -r requirements.txt
 python start_server.py
 ```
 
+开发时可按需关闭自动打开浏览器或曲库预加载：
+
+```powershell
+python start_server.py --no-browser --no-preload
+```
+
+服务仅监听 `127.0.0.1`，只能从本机访问。
+
+## 随机歌曲与 TXT 曲池
+
+左上角菜单进入“随机歌曲”后，可在两个独立模式间切换：
+
+1. `全曲库抽选`：按流派、等级、谱面类型和定数范围筛选
+2. `TXT 曲库抽选`：从 `RandomMusic-TXT/` 中选择一个 TXT 曲池
+
+TXT 内容使用曲库功能的导出格式，只需填写以英文逗号分隔的 MusicID，例如：
+
+```text
+8,17,42
+```
+
+可以换行并使用空格分隔；不存在或重复的 MusicID 会被忽略。
+
 仅检查 Python 可用性：
 
 ```powershell
@@ -75,7 +99,8 @@ start_server.bat --check
 6. `MaiList/Character/`：导出的胜利者 JSON
 7. `DownloadCore/`：曲库/曲绘下载脚本
 8. `XMao_Core/`：前端模块、语言包、背景资源
-9. `.cache/`：缓存包与重置状态文件
+9. `RandomMusic-TXT/`：随机歌曲功能读取的自定义 TXT 曲池
+10. `.cache/`：缓存包与重置状态文件
 
 ## GUI 按钮说明（核心）
 

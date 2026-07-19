@@ -243,6 +243,12 @@ function applyLanguageToDom() {
         node.setAttribute('alt', t(key, node.getAttribute('alt') || ''));
     });
 
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(node => {
+        const key = node.dataset.i18nAriaLabel;
+        if (!key) return;
+        node.setAttribute('aria-label', t(key, node.getAttribute('aria-label') || ''));
+    });
+
     refreshModuleNavLanguage();
     updateGlobalSyncToggleButton();
     updateMemoryTestAutoLoadButton();
@@ -3057,6 +3063,13 @@ function switchPage(pageId) {
     if (targetNavItem) {
         targetNavItem.classList.add('active');
     }
+
+    const moduleHooks = window.XMaoCore?.getModuleHooks?.(pageId);
+    if (moduleHooks && typeof moduleHooks.onEnter === 'function') {
+        Promise.resolve(moduleHooks.onEnter()).catch(error => {
+            console.error(`模块 ${pageId} 进入页面时初始化失败:`, error);
+        });
+    }
     
     // 切换页面后关闭菜单
     closeNavMenu();
@@ -4537,6 +4550,20 @@ let databaseSelectBound = false;
 // Data文件夹下实时扫描得到的JSON文件列表
 let dataFiles = [];
 
+window.XMaoMusicData = {
+    getSongs() {
+        return Array.isArray(songs) ? songs : [];
+    },
+    getCurrentDatabase() {
+        return currentDatabase;
+    },
+    bindSongCover(imageElement, song) {
+        const imageName = String(song?.基础信息?.image_url || '').trim();
+        const imagePath = imageName ? `./MaiSongLib/${imageName}` : './Data/人类.png';
+        bindImageElementSource(imageElement, imagePath);
+    }
+};
+
 function renderDatabaseSelectionEmptyState(showMissingPrompt = false) {
     const databaseSelect = document.getElementById('databaseSelect');
     const databaseInfo = document.getElementById('databaseInfo');
@@ -4563,6 +4590,7 @@ function renderDatabaseSelectionEmptyState(showMissingPrompt = false) {
     currentDatabase = null;
     databaseList = [];
     songs = [];
+    window.dispatchEvent(new CustomEvent('xmao:music-data-changed'));
     if (memoryTestState.enabled) {
         unloadMemoryTestCache();
     }
@@ -4647,6 +4675,12 @@ async function loadDatabase(filename, options = {}) {
         
         // 保存歌曲数据
         songs = data;
+        window.dispatchEvent(new CustomEvent('xmao:music-data-changed', {
+            detail: {
+                filename,
+                count
+            }
+        }));
         if (memoryTestState.enabled) {
             unloadMemoryTestCache();
         }

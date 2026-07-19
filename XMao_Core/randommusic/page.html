@@ -1,0 +1,165 @@
+<section class="page random-music-page" id="randommusicPage" style="display: none;">
+    <div class="page-content random-music-page-content">
+        <header class="random-music-header">
+            <div>
+                <h1 data-i18n="random.page.title">随机歌曲</h1>
+                <p data-i18n="random.page.subtitle">赛事抽歌工作台</p>
+            </div>
+            <div class="random-database-status" id="randomDatabaseStatus" role="status">
+                <span class="random-status-dot" aria-hidden="true"></span>
+                <span data-i18n="random.page.database_loading">正在读取曲库</span>
+            </div>
+        </header>
+
+        <div class="random-music-workbench">
+            <form class="random-filter-panel" id="randomMusicForm">
+                <div class="random-panel-heading">
+                    <h2 data-i18n="random.mode.title">抽取模式</h2>
+                </div>
+
+                <div class="random-mode-switch" role="group" aria-label="抽取模式" data-i18n-aria-label="random.mode.title">
+                    <button class="random-mode-button" type="button" data-random-mode="txt" aria-pressed="false" data-i18n="random.mode.txt">TXT 曲库抽选</button>
+                    <button class="random-mode-button is-active" type="button" data-random-mode="all" aria-pressed="true" data-i18n="random.mode.all">全曲库抽选</button>
+                </div>
+
+                <div class="random-mode-panel random-txt-mode-panel" id="randomTxtModePanel" hidden>
+                    <div class="random-subpanel-heading">
+                        <label for="randomPoolSelect" data-i18n="random.pool.label">TXT 曲池</label>
+                        <button
+                            class="random-refresh-button"
+                            id="randomPoolRefresh"
+                            type="button"
+                            title="刷新 TXT 曲池"
+                            aria-label="刷新 TXT 曲池"
+                            data-i18n-title="random.pool.refresh"
+                            data-i18n-aria-label="random.pool.refresh"
+                        >&#8635;</button>
+                    </div>
+                    <div class="random-field-group">
+                        <select id="randomPoolSelect" name="pool">
+                            <option value="" data-i18n="random.pool.select">请选择 TXT 曲池</option>
+                        </select>
+                        <div class="random-field-status" id="randomPoolStatus" role="status"></div>
+                    </div>
+                </div>
+
+                <div class="random-mode-panel random-all-mode-panel" id="randomAllModePanel">
+                    <div class="random-field-group">
+                        <label for="randomGenreSelect" data-i18n="random.filters.genre">流派</label>
+                        <select id="randomGenreSelect" name="genre">
+                            <option value="all" data-i18n="random.range.all_genres">全部流派</option>
+                        </select>
+                    </div>
+
+                    <div class="random-filter-row">
+                        <div class="random-field-group">
+                            <label for="randomLevelSelect" data-i18n="random.filters.level">等级</label>
+                            <select id="randomLevelSelect" name="level">
+                                <option value="all" data-i18n="random.range.all_levels">全部等级</option>
+                            </select>
+                        </div>
+                        <div class="random-field-group">
+                            <label for="randomTypeSelect" data-i18n="random.filters.type">谱面类型</label>
+                            <select id="randomTypeSelect" name="type">
+                                <option value="all" data-i18n="random.filters.all_types">全部类型</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <fieldset class="random-constant-fieldset">
+                        <legend data-i18n="random.filters.constant">定数范围</legend>
+                        <div class="random-constant-inputs">
+                            <label>
+                                <span data-i18n="random.filters.constant_min">最低</span>
+                                <input id="randomConstantMin" name="constantMin" type="number" min="1" max="20" step="0.1" inputmode="decimal" placeholder="1.0">
+                            </label>
+                            <span class="random-constant-separator" aria-hidden="true">-</span>
+                            <label>
+                                <span data-i18n="random.filters.constant_max">最高</span>
+                                <input id="randomConstantMax" name="constantMax" type="number" min="1" max="20" step="0.1" inputmode="decimal" placeholder="15.0">
+                            </label>
+                        </div>
+                        <div class="random-field-error" id="randomConstantError" role="alert"></div>
+                    </fieldset>
+                </div>
+
+                <div class="random-candidate-summary" id="randomCandidateSummary" role="status" aria-live="polite">
+                    <strong id="randomCandidateCount">0</strong>
+                    <span data-i18n="random.filters.candidate_suffix">个候选谱面</span>
+                </div>
+
+                <button class="random-primary-button" id="randomDrawButton" type="submit" disabled>
+                    <span aria-hidden="true">🎲</span>
+                    <span id="randomDrawButtonLabel" data-i18n="random.action.draw">随机一首</span>
+                </button>
+            </form>
+
+            <section class="random-result-stage" aria-label="随机结果" data-i18n-aria-label="random.result.region">
+                <div class="random-result-empty" id="randomResultEmpty">
+                    <div class="random-result-mark" aria-hidden="true">?</div>
+                    <h2 id="randomResultHeading" data-i18n="random.result.empty_title">尚未抽取歌曲</h2>
+                    <p data-i18n="random.result.empty_status">等待抽取</p>
+                </div>
+
+                <div class="random-result-drawing" id="randomResultDrawing" hidden aria-live="polite">
+                    <span data-i18n="random.result.drawing">随机中</span>
+                    <strong id="randomRollingTitle">...</strong>
+                </div>
+
+                <div class="random-result-error" id="randomResultError" hidden role="alert">
+                    <strong data-i18n="random.result.failed">无法完成随机</strong>
+                    <span id="randomResultErrorText"></span>
+                </div>
+
+                <article class="random-result" id="randomResult" hidden aria-live="polite">
+                    <div class="random-result-cover-wrap">
+                        <img id="randomResultCover" src="" alt="歌曲封面" data-i18n-alt="random.song_cover.alt">
+                        <span class="random-result-type" id="randomResultType"></span>
+                    </div>
+
+                    <div class="random-result-details">
+                        <div class="random-result-context">
+                            <span id="randomResultPool"></span>
+                            <span id="randomResultCandidatePosition"></span>
+                        </div>
+                        <h2 id="randomResultTitle"></h2>
+                        <p class="random-result-artist" id="randomResultArtist"></p>
+
+                        <dl class="random-result-meta">
+                            <div>
+                                <dt data-i18n="random.result.genre">流派</dt>
+                                <dd id="randomResultGenre"></dd>
+                            </div>
+                            <div>
+                                <dt>BPM</dt>
+                                <dd id="randomResultBpm"></dd>
+                            </div>
+                            <div>
+                                <dt data-i18n="random.result.version">版本</dt>
+                                <dd id="randomResultVersion"></dd>
+                            </div>
+                            <div>
+                                <dt>ID</dt>
+                                <dd id="randomResultMusicId"></dd>
+                            </div>
+                        </dl>
+
+                        <div class="random-hit-chart" id="randomHitChart">
+                            <span class="random-hit-chart-label" data-i18n="random.result.hit_chart">命中谱面</span>
+                            <strong id="randomHitDifficulty"></strong>
+                            <span id="randomHitLevel"></span>
+                            <span id="randomHitConstant"></span>
+                        </div>
+
+                        <div class="random-chart-list" id="randomChartList" aria-label="歌曲谱面列表"></div>
+
+                        <button class="random-secondary-button" id="randomDrawAgain" type="button">
+                            <span aria-hidden="true">&#8635;</span>
+                            <span data-i18n="random.action.again">再次随机</span>
+                        </button>
+                    </div>
+                </article>
+            </section>
+        </div>
+    </div>
+</section>

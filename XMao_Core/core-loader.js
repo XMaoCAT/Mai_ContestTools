@@ -44,6 +44,7 @@
         var folder = String(module.folder || module.directory || module.id || ('module-' + index));
         var id = sanitizeId(module.id || folder, index);
         var name = String(module.name || module.nav_text || folder);
+        var nameKey = String(module.name_key || module.nameKey || '').trim();
         var icon = String(module.icon || '📁');
         var order = Number.isFinite(Number(module.order)) ? Number(module.order) : 9999;
 
@@ -76,6 +77,7 @@
         return {
             id: id,
             name: name,
+            nameKey: nameKey,
             icon: icon,
             order: order,
             folder: folder,
@@ -209,7 +211,21 @@
             nav.href = '#';
             nav.className = 'nav-item' + (index === 0 ? ' active' : '');
             nav.dataset.page = module.id;
-            nav.innerHTML = '<span class="nav-icon">' + module.icon + '</span><span class="nav-text">' + module.name + '</span>';
+
+            var icon = document.createElement('span');
+            icon.className = 'nav-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.textContent = module.icon;
+
+            var text = document.createElement('span');
+            text.className = 'nav-text';
+            text.textContent = module.name;
+            if (module.nameKey) {
+                text.dataset.i18n = module.nameKey;
+            }
+
+            nav.appendChild(icon);
+            nav.appendChild(text);
             navContainer.appendChild(nav);
         });
     }
