@@ -1,0 +1,10 @@
+{
+  "id": "randommusic",
+  "name": "随机歌曲",
+  "name_key": "nav.random_music",
+  "icon": "🎲",
+  "order": 15,
+  "page": "page.html",
+  "script": "page.js",
+  "style": "page.css"
+}

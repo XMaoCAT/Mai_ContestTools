@@ -53,6 +53,8 @@ def parse_int_env(env_name, default_value, minimum=1):
 
 DEFAULT_START_PORT = parse_int_env('XMAI_START_PORT', 8001, minimum=1)
 DEFAULT_PORT_SCAN_ATTEMPTS = parse_int_env('XMAI_PORT_ATTEMPTS', 50, minimum=1)
+MAX_REQUEST_BODY_BYTES = parse_int_env('XMAI_MAX_REQUEST_BYTES', 32 * 1024 * 1024, minimum=1024)
+SERVER_HOST = '127.0.0.1'
 
 
 def app_log(message, level='INFO'):
@@ -136,6 +138,12 @@ mai_song_lib_dir = os.path.join(current_dir, 'MaiSongLib')
 if not os.path.exists(mai_song_lib_dir):
     os.makedirs(mai_song_lib_dir)
     app_log(f"创建MaiSongLib文件夹成功: {mai_song_lib_dir}")
+
+# 独立随机歌曲歌单目录
+random_music_txt_dir = os.path.join(current_dir, 'RandomMusic-TXT')
+if not os.path.exists(random_music_txt_dir):
+    os.makedirs(random_music_txt_dir)
+    app_log(f"创建RandomMusic-TXT文件夹成功: {random_music_txt_dir}")
 
 # DownloadCore目录
 download_core_dir = os.path.join(current_dir, 'DownloadCore')
@@ -656,23 +664,43 @@ def get_memory_test_package_info():
     return memory_test_package_info
 
 
-def safe_json_filename(filename, default_name='result'):
-    raw = os.path.basename(str(filename or '')).strip()
+def safe_managed_filename(filename, extension, default_name=None):
+    raw = str(filename or '').strip()
     if not raw:
-        raw = default_name
-    if not raw.endswith('.json'):
-        raw = f'{raw}.json'
+        if default_name is None:
+            raise ValueError('文件名不能为空')
+        raw = str(default_name).strip()
+
+    # 只允许受管目录的直接子文件。保留中文等正常字符，替换 Windows 非法字符。
+    raw = raw.replace('\\', '/')
+    raw = raw.rsplit('/', 1)[-1]
+    raw = re.sub(r'[\x00-\x1f<>:"/\\|?*]+', '_', raw).strip(' .')
+    if not raw or raw in ('.', '..'):
+        raise ValueError('文件名无效')
+
+    normalized_extension = str(extension or '').strip().lower()
+    if normalized_extension and not normalized_extension.startswith('.'):
+        normalized_extension = f'.{normalized_extension}'
+    if normalized_extension and not raw.lower().endswith(normalized_extension):
+        raw = f'{raw}{normalized_extension}'
     return raw
+
+
+def resolve_managed_file(root_dir, filename, extension, default_name=None):
+    safe_name = safe_managed_filename(filename, extension, default_name)
+    root_path = os.path.realpath(root_dir)
+    file_path = os.path.realpath(os.path.join(root_path, safe_name))
+    if os.path.commonpath((root_path, file_path)) != root_path:
+        raise ValueError('文件路径超出允许目录')
+    return safe_name, file_path
+
+
+def safe_json_filename(filename, default_name='result'):
+    return safe_managed_filename(filename, '.json', default_name)
 
 
 def safe_png_filename(filename, default_name='result_diagram'):
-    raw = os.path.basename(str(filename or '')).strip()
-    if not raw:
-        raw = default_name
-    raw = re.sub(r'[\\/:*?"<>|]+', '_', raw)
-    if not raw.lower().endswith('.png'):
-        raw = f'{raw}.png'
-    return raw
+    return safe_managed_filename(filename, '.png', default_name)
 
 
 def scan_core_modules():
@@ -767,6 +795,28 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(204)
         self.end_headers()
+
+    def _send_json(self, status_code, payload):
+        response_bytes = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+        self.send_response(status_code)
+        self.send_header('Content-type', 'application/json; charset=utf-8')
+        self.send_header('Content-Length', str(len(response_bytes)))
+        self.end_headers()
+        self.wfile.write(response_bytes)
+
+    def _get_request_content_length(self):
+        raw_value = self.headers.get('Content-Length')
+        if raw_value is None:
+            return 0
+        try:
+            content_length = int(raw_value)
+        except (TypeError, ValueError) as error:
+            raise ValueError('Content-Length 无效') from error
+        if content_length < 0:
+            raise ValueError('Content-Length 不能为负数')
+        if content_length > MAX_REQUEST_BODY_BYTES:
+            raise OverflowError(f'请求内容超过 {MAX_REQUEST_BODY_BYTES // (1024 * 1024)} MiB 限制')
+        return content_length
 
     def _parse_single_byte_range(self, raw_range, file_size):
         if not raw_range or file_size <= 0:
@@ -950,6 +1000,29 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     'success': False,
                     'error': str(e)
                 }, ensure_ascii=False).encode('utf-8'))
+
+        # 获取独立随机歌曲歌单目录中的TXT文件列表
+        elif request_path == '/api/get-random-music-files':
+            try:
+                files = []
+                if os.path.exists(random_music_txt_dir):
+                    for file_name in os.listdir(random_music_txt_dir):
+                        if not file_name.lower().endswith('.txt'):
+                            continue
+                        _, file_path = resolve_managed_file(random_music_txt_dir, file_name, '.txt')
+                        if not os.path.isfile(file_path):
+                            continue
+                        files.append({
+                            'name': file_name,
+                            'size': os.path.getsize(file_path),
+                            'mtime': os.path.getmtime(file_path)
+                        })
+
+                files.sort(key=lambda item: str(item.get('name', '')).lower())
+                self._send_json(200, {'success': True, 'files': files})
+            except Exception as e:
+                log_api_error('/api/get-random-music-files', e)
+                self._send_json(500, {'success': False, 'error': str(e)})
         
         # 处理获取XMao_Core模块列表请求
         elif request_path == '/api/core-modules':
@@ -1182,6 +1255,17 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 pass
     
     def do_POST(self):
+        try:
+            content_length = self._get_request_content_length()
+        except OverflowError as error:
+            self.close_connection = True
+            self._send_json(413, {'success': False, 'error': str(error)})
+            return
+        except ValueError as error:
+            self.close_connection = True
+            self._send_json(400, {'success': False, 'error': str(error)})
+            return
+
         # 构建（或复用）内存缓存包，并返回最新信息
         if self.path == '/api/build-memory-test-package':
             try:
@@ -1218,7 +1302,6 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         # 处理保存背景裁剪结果请求（写入 XMao_Core/Background/Applied）
         elif self.path == '/api/save-background-crop':
-            content_length = int(self.headers.get('Content-Length', '0'))
             post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
 
             try:
@@ -1247,8 +1330,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             
         # 处理创建文件请求
         elif self.path == '/api/create-file':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
+            post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
             
             try:
                 # 解析JSON数据
@@ -1263,8 +1345,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({'success': False, 'error': '缺少文件名或内容'}).encode('utf-8'))
                     return
                 
-                # 创建文件路径
-                file_path = os.path.join(mai_list_dir, f'{filename}.txt')
+                filename, file_path = resolve_managed_file(mai_list_dir, filename, '.txt')
                 
                 # 写入文件
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -1295,8 +1376,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         
         # 处理删除文件请求 - MaiList文件夹
         elif self.path == '/api/delete-file':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
+            post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
             
             try:
                 # 解析JSON数据
@@ -1310,10 +1390,14 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({'success': False, 'error': '缺少文件列表或格式错误'}).encode('utf-8'))
                     return
                 
+                managed_files = [
+                    resolve_managed_file(mai_list_dir, file_name, '.txt')
+                    for file_name in files
+                ]
+
                 # 删除文件
                 deleted_count = 0
-                for file_name in files:
-                    file_path = os.path.join(mai_list_dir, file_name)
+                for file_name, file_path in managed_files:
                     if os.path.exists(file_path):
                         os.remove(file_path)
                         deleted_count += 1
@@ -1341,8 +1425,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         
         # 处理保存Character文件请求
         elif self.path == '/api/save-character-file':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
+            post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
             
             try:
                 # 解析JSON数据
@@ -1357,12 +1440,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({'success': False, 'error': '缺少文件名或内容'}).encode('utf-8'))
                     return
                 
-                # 确保文件名以.json结尾
-                if not filename.endswith('.json'):
-                    filename = f'{filename}.json'
-                
-                # 创建文件路径
-                file_path = os.path.join(character_dir, filename)
+                filename, file_path = resolve_managed_file(character_dir, filename, '.json')
                 
                 # 写入文件
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -1392,12 +1470,16 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         # 处理保存比赛结果请求
         elif self.path == '/api/save-match-result':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
+            post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
 
             try:
                 data = json.loads(post_data.decode('utf-8'))
-                filename = safe_json_filename(data.get('filename'), 'match_result')
+                filename, file_path = resolve_managed_file(
+                    result_dir,
+                    data.get('filename'),
+                    '.json',
+                    'match_result'
+                )
                 content = data.get('content')
 
                 if content is None:
@@ -1409,8 +1491,6 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                         'error': '缺少比赛结果内容'
                     }).encode('utf-8'))
                     return
-
-                file_path = os.path.join(result_dir, filename)
 
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write(json.dumps(content, ensure_ascii=False, indent=2))
@@ -1438,13 +1518,16 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         # 处理获取Result文件内容请求
         elif self.path == '/api/get-result-file':
-            content_length = int(self.headers.get('Content-Length', '0'))
             post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
 
             try:
                 data = json.loads(post_data.decode('utf-8'))
-                filename = safe_json_filename(data.get('filename'), 'match_result')
-                file_path = os.path.join(result_dir, filename)
+                filename, file_path = resolve_managed_file(
+                    result_dir,
+                    data.get('filename'),
+                    '.json',
+                    'match_result'
+                )
 
                 if not os.path.exists(file_path):
                     self.send_response(404)
@@ -1479,7 +1562,6 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         # 处理保存ResultDiagram图片请求
         elif self.path == '/api/save-result-diagram':
-            content_length = int(self.headers.get('Content-Length', '0'))
             post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
 
             try:
@@ -1501,13 +1583,17 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 for index, item in enumerate(items):
                     if not isinstance(item, dict):
                         continue
-                    filename = safe_png_filename(item.get('filename'), f'result_diagram_{index + 1}')
+                    filename, file_path = resolve_managed_file(
+                        result_diagram_dir,
+                        item.get('filename'),
+                        '.png',
+                        f'result_diagram_{index + 1}'
+                    )
                     content_base64 = str(item.get('content_base64') or '').strip()
                     if not content_base64:
                         continue
 
                     image_bytes = base64.b64decode(content_base64, validate=True)
-                    file_path = os.path.join(result_diagram_dir, filename)
                     with open(file_path, 'wb') as image_file:
                         image_file.write(image_bytes)
                     saved_files.append(filename)
@@ -1536,8 +1622,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         # 处理删除Character文件请求
         elif self.path == '/api/delete-character-file':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
+            post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
             
             try:
                 # 解析JSON数据
@@ -1551,10 +1636,14 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({'success': False, 'error': '缺少文件列表或格式错误'}).encode('utf-8'))
                     return
                 
+                managed_files = [
+                    resolve_managed_file(character_dir, file_name, '.json')
+                    for file_name in files
+                ]
+
                 # 删除文件
                 deleted_count = 0
-                for file_name in files:
-                    file_path = os.path.join(character_dir, file_name)
+                for file_name, file_path in managed_files:
                     if os.path.exists(file_path):
                         os.remove(file_path)
                         deleted_count += 1
@@ -1582,8 +1671,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         
         # 处理获取Character文件内容请求
         elif self.path == '/api/get-character-file':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
+            post_data = self.rfile.read(content_length) if content_length > 0 else b'{}'
             
             try:
                 # 解析JSON数据
@@ -1597,8 +1685,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({'success': False, 'error': '缺少文件名'}).encode('utf-8'))
                     return
                 
-                # 创建文件路径
-                file_path = os.path.join(character_dir, filename)
+                filename, file_path = resolve_managed_file(character_dir, filename, '.json')
                 
                 if not os.path.exists(file_path):
                     self.send_response(404)
@@ -1635,12 +1722,7 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
     
-    # 允许跨域请求
     def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-
         request_path = getattr(self, 'path', '').split('?', 1)[0].lower()
         if request_path and not request_path.startswith('/api/'):
             if (
@@ -1697,7 +1779,7 @@ def create_http_server(start_port=DEFAULT_START_PORT, max_attempts=DEFAULT_PORT_
             continue
 
         try:
-            httpd = ThreadingTCPServer(("", candidate_port), Handler)
+            httpd = ThreadingTCPServer((SERVER_HOST, candidate_port), Handler)
             return httpd, candidate_port
         except OSError as bind_error:
             app_log(f"端口 {candidate_port} 绑定失败: {bind_error}", 'WARN')
@@ -1707,11 +1789,14 @@ def create_http_server(start_port=DEFAULT_START_PORT, max_attempts=DEFAULT_PORT_
     raise RuntimeError('无法找到可用端口，请关闭占用端口的程序后重试')
 
 
-def run_cli_server(open_browser_on_start=True):
+def run_cli_server(open_browser_on_start=True, preload_on_start=True):
     app_log("正在启动服务器...")
     app_log(f"静态资源根目录: {current_dir}")
     app_log(f"端口分配策略: 从 {DEFAULT_START_PORT} 开始，最多尝试 {DEFAULT_PORT_SCAN_ATTEMPTS} 个端口")
-    preload_memory_package()
+    if preload_on_start:
+        preload_memory_package()
+    else:
+        app_log("已跳过内存缓存包预构建（开发模式）")
 
     try:
         httpd, port = create_http_server()
@@ -3983,6 +4068,9 @@ if __name__ == "__main__":
     if '--cli' in sys.argv or not TK_AVAILABLE:
         if not TK_AVAILABLE and '--cli' not in sys.argv:
             app_log("未检测到 tkinter，已回退到命令行模式。", 'WARN')
-        sys.exit(run_cli_server())
+        sys.exit(run_cli_server(
+            open_browser_on_start='--no-browser' not in sys.argv,
+            preload_on_start='--no-preload' not in sys.argv
+        ))
 
     sys.exit(run_gui_server())
